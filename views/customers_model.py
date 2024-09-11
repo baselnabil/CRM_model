@@ -1,5 +1,7 @@
-from db_connection import DB
-class CustomerModel(DB):
+import mysql.connector
+from mysql.connector import Error
+
+class CustomerModel:
     def __init__(self,connection_db):
         self.connection = connection_db
 
@@ -38,3 +40,19 @@ class CustomerModel(DB):
             print(f"Error deleting customer: {e}")
         finally:
             cursor.close()
+    def connection_db():
+        try:
+            connection = mysql.connector.connect(
+                host='localhost',
+                database='crm',
+                user='crm',
+                password='password',
+                auth_plugin='mysql_native_password'
+        )
+            if connection.is_connected():
+                db_info = connection.get_server_info()  # Get some info about the server
+                print(f"Connected to MySQL Server version {db_info}")
+                return connection
+        except Error as err:
+            print(f"MySQL connection failed: {err}")
+            return None
