@@ -27,9 +27,9 @@ class MainPage(ttk.Frame):
 
         add_transaction_button = ttk.Button(transactions_frame, text="Add Debt", command=lambda: controller.show_frame('TransactionsPage'))
         add_transaction_button.pack(fill='x', pady=5)
-        remove_transaction_button = ttk.Button(transactions_frame, text="Remove Debt")
+        remove_transaction_button = ttk.Button(transactions_frame, text="Add Transaction",command=lambda:controller.show_frame('AddTransaction'))
         remove_transaction_button.pack(fill='x', pady=5)
-        search_transaction_button = ttk.Button(transactions_frame, text="Search Debt")
+        search_transaction_button = ttk.Button(transactions_frame, text="Search Transaction",command=lambda:controller.show_frame('SearchTransaction'))
         search_transaction_button.pack(fill='x', pady=5)
 
         # Sales Section

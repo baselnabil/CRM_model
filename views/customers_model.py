@@ -22,8 +22,10 @@ class CustomerModel:
     def search_customer(self, name):
         try:
             cursor = self.connection.cursor()
-            query = "SELECT * FROM customers WHERE name = %s"
-            cursor.execute(query, (name,))
+            query ='USE crm;'
+            query2 = "SELECT * FROM customers WHERE name = %s;"
+            cursor.execute(query)
+            cursor.execute(query2,(name,))
             return cursor.fetchall()
         except Exception as e:
             print(f"Error searching for customer: {e}")

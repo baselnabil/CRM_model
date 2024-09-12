@@ -8,7 +8,10 @@ from customer_page import SearchCustomer
 from transactions_page import TransactionsPage
 from sales_page import SalesPage
 from customers_model import CustomerModel
+from transactions_page import AddTransaction
 from tkinter import messagebox
+from transactions_page import SearchTransaction
+
 class CRMApp(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -35,7 +38,7 @@ class CRMApp(tk.Tk):
         self.container.pack(fill='both', expand=True)
 
         self.frames = {}
-        for F in (LoginPage, MainPage, Addcustomer, TransactionsPage, SalesPage,DeleteCustomer,SearchCustomer):
+        for F in (LoginPage, MainPage, Addcustomer, TransactionsPage, SalesPage,DeleteCustomer,SearchCustomer,AddTransaction,SearchTransaction):
             page_name = F.__name__
             frame = F(parent=self.container, controller=self)
             self.frames[page_name] = frame
@@ -49,6 +52,8 @@ class CRMApp(tk.Tk):
         frame.tkraise()
         if page_name == 'Addcustomer':
             self.geometry('400x400')  # Smaller size for the login page
+        elif page_name=='SearchTransaction':
+            self.geometry('1000x1000')
         else:
             self.geometry('600x500')  # Default size for main pages
 
