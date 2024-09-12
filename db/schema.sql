@@ -17,4 +17,11 @@ CREATE TABLE IF NOT EXISTS debts (
     debt_due DATE NOT NULL)
 
 
+CREATE TABLE IF NOT EXISTS transactions (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    company_name VARCHAR(20),
+    transaction_type VARCHAR(10),
+    transaction_date DATE ,
+    transaction_amount DECIMAL(9,3)
+)
 
