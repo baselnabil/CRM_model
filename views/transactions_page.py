@@ -123,33 +123,43 @@ class SearchTransaction(ttk.Frame):
         submit_button = ttk.Button(self, text="Search", command=self.search_by_date)
         submit_button.grid(row=3, column=1, padx=20, pady=20)
 
-        # Result Frame (with Scrollbar)
-        self.result_frame = ttk.Frame(self)
-        self.result_frame.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+        style = ttk.Style()
+        style.configure("Treeview", 
+                background="silver",  # Background color for the rows
+                fieldbackground="silver",  # Background color for the field
+                foreground="black",
+                rowheight=25)  # Text color
+        style.theme_use('clam')
+        style.map('Treeview', 
+          background=[('selected', 'blue')],  # Background when selected
+          foreground=[('selected', 'white')]) 
 
-        # Add Scrollbar to the result frame
-        self.canvas = tk.Canvas(self.result_frame)
-        self.scrollbar = ttk.Scrollbar(self.result_frame, orient="vertical", command=self.canvas.yview)
-        self.scrollable_frame = ttk.Frame(self.canvas)
+        self.tree=ttk.Treeview(self,columns=['ID','Company Name','Type','Date','Amount'])
+        self.tree.column('#0',width=0,stretch='no')
+        self.tree.column("ID", anchor='w',width=50)
+        self.tree.column("Company Name", anchor='w',width=120)
+        self.tree.column("Type", anchor="center",width=65)
+        self.tree.column("Date", anchor='w',width=120)
+        self.tree.column("Amount", anchor='center',width=120)
 
-        self.scrollable_frame.bind(
-            "<Configure>",
-            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-        )
+        self.tree.heading('#0',text='',anchor="w")
+        self.tree.heading('ID',text='Id',anchor="w")
+        self.tree.heading('Company Name',text='Company Name',anchor="w")
+        self.tree.heading('Type',text='Type',anchor="w")
+        self.tree.heading('Date',text='Date',anchor="w")
+        self.tree.heading('Amount',text='Amount',anchor="w")
+        
+        self.tree.grid(row=4,column=0,columnspan=2,padx=10,pady=10,sticky='nsew')
 
-        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.tree_scroll_y=ttk.Scrollbar(self,orient="vertical",command=self.tree.yview)
+        self.tree_scroll_y.grid(row=4,column=2,sticky='ns')
+        self.tree.configure(yscrollcommand=self.tree_scroll_y.set)
 
-        self.canvas.grid(row=0, column=0, sticky="nsew")
-        self.scrollbar.grid(row=0, column=1, sticky="ns")
+        save_button = ttk.Button(self, text='Save to Excel', command=self.save_output)
+        save_button.grid(row=7, column=1, padx=(10, 20), pady=20, sticky='ew', columnspan=1)
 
-
-        save_button=ttk.Button(self,text='save to excel',command=self.save_output)
-        save_button.grid(row=5,column=3,columnspan=1,padx=20,pady=20)
-
-        # Back Button
-        back_button = ttk.Button(self, text="Back to Main Page", command=lambda: controller.show_frame('MainPage'))
-        back_button.grid(row=5, column=0, columnspan=2, padx=20, pady=20, sticky='ew')
+        back_button = ttk.Button(self, text="Back to Main Page", command=lambda: self.controller.show_frame('MainPage'))
+        back_button.grid(row=7, column=0, padx=(20, 10), pady=20, sticky='ew', columnspan=1)
 
     def search_by_date(self):
         start_date = self.search_entry_start.get()
@@ -158,8 +168,8 @@ class SearchTransaction(ttk.Frame):
         if start_date and end_date:
             try:
                 # Clear the previous search results
-                for widget in self.scrollable_frame.winfo_children():
-                    widget.destroy()
+                for item in self.tree.get_children():
+                    self.tree.delete(item)
 
                 # Search for transactions within the date range
                 self.results = self.search_model.search_transaction(start_date, end_date)
@@ -167,24 +177,12 @@ class SearchTransaction(ttk.Frame):
                 if self.results:
                     # Iterate through results and create labels for each transaction
                     for i, transaction in enumerate(self.results, start=1):
+                        id = transaction[0]
                         company_name = transaction[1]
                         transaction_type = transaction[2]
                         transaction_date = transaction[3]
                         transaction_amount = transaction[4]
-
-                        transaction_info = (
-                            f"Transaction {i}\n"
-                            f"Company: {company_name}\n"
-                            f"Type: {transaction_type}\n"
-                            f"Date: {transaction_date}\n"
-                            f"Amount: {transaction_amount}\n"
-                            "------------------------"
-                        )
-
-                        # Create a label for each transaction and add it to the scrollable frame
-                        transaction_label = ttk.Label(self.scrollable_frame, text=transaction_info, font=("Helvetica", 12))
-                        transaction_label.pack(anchor="w", padx=10, pady=5)
-
+                        self.tree.insert('','end',values=(id,company_name,transaction_type,transaction_date,transaction_amount))
                 else:
                     messagebox.showinfo("No Results", "No transactions found in that date range.")
             except Exception as e:
@@ -193,6 +191,7 @@ class SearchTransaction(ttk.Frame):
             messagebox.showwarning("Input Error", "Please enter both start and end dates.")
     def save_output(self):
         try:
+
             results = self.results
             if not results:
                 messagebox.showwarning("No Data", "No data available to save.")

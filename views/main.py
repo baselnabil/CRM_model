@@ -2,15 +2,11 @@ import tkinter as tk
 from tkinter import ttk
 from login_page import LoginPage
 from main_page import MainPage
-from customer_page import Addcustomer
-from customer_page import DeleteCustomer
-from customer_page import SearchCustomer
-from transactions_page import TransactionsPage
+from customer_page import Addcustomer, DeleteCustomer, SearchCustomer
+from transactions_page import TransactionsPage, AddTransaction, SearchTransaction
 from sales_page import SalesPage
 from customers_model import CustomerModel
-from transactions_page import AddTransaction
 from tkinter import messagebox
-from transactions_page import SearchTransaction
 
 class CRMApp(tk.Tk):
     def __init__(self):
@@ -24,6 +20,7 @@ class CRMApp(tk.Tk):
         if self.connection is None:
             messagebox.showerror("Database Error", "Could not connect to the database.")
             self.quit()
+
         # Apply ttk theme
         style = ttk.Style(self)
         style.theme_use('clam')
@@ -37,27 +34,54 @@ class CRMApp(tk.Tk):
         self.container = ttk.Frame(self)
         self.container.pack(fill='both', expand=True)
 
-        self.frames = {}
-        for F in (LoginPage, MainPage, Addcustomer, TransactionsPage, SalesPage,DeleteCustomer,SearchCustomer,AddTransaction,SearchTransaction):
-            page_name = F.__name__
-            frame = F(parent=self.container, controller=self)
-            self.frames[page_name] = frame
-            frame.grid(row=0, column=0, sticky='nsew')
+        self.frames = {}  # Dictionary to store the frames
 
+        # Show the initial frame (Login Page)
         self.show_frame('LoginPage')
 
     def show_frame(self, page_name):
-        '''Show a frame for the given page name'''
+        """Show a frame for the given page name. Create the frame if it doesn't exist."""
+        # If the frame is not already created, create it
+        if page_name not in self.frames:
+            frame = self.create_frame(page_name)
+            self.frames[page_name] = frame
+            frame.grid(row=0, column=0, sticky='nsew')
+
+        # Raise the frame to the front
         frame = self.frames[page_name]
         frame.tkraise()
+
+        # Adjust window size based on the page
         if page_name == 'Addcustomer':
-            self.geometry('400x400')  # Smaller size for the login page
-        elif page_name=='SearchTransaction':
-            self.geometry('1000x1000')
+            self.geometry('400x400')
+        elif page_name == 'SearchTransaction':
+            self.geometry('550x700')
         else:
-            self.geometry('600x500')  # Default size for main pages
+            self.geometry('600x500')
+
+    def create_frame(self, page_name):
+        """Create a new frame based on the page name"""
+        if page_name == 'LoginPage':
+            return LoginPage(parent=self.container, controller=self)
+        elif page_name == 'MainPage':
+            return MainPage(parent=self.container, controller=self)
+        elif page_name == 'Addcustomer':
+            return Addcustomer(parent=self.container, controller=self)
+        elif page_name == 'DeleteCustomer':
+            return DeleteCustomer(parent=self.container, controller=self)
+        elif page_name == 'SearchCustomer':
+            return SearchCustomer(parent=self.container, controller=self)
+        elif page_name == 'TransactionsPage':
+            return TransactionsPage(parent=self.container, controller=self)
+        elif page_name == 'SalesPage':
+            return SalesPage(parent=self.container, controller=self)
+        elif page_name == 'AddTransaction':
+            return AddTransaction(parent=self.container, controller=self)
+        elif page_name == 'SearchTransaction':
+            return SearchTransaction(parent=self.container, controller=self)
+        else:
+            raise ValueError(f"Unknown page name: {page_name}")
 
 if __name__ == "__main__":
     app = CRMApp()
     app.mainloop()
-
